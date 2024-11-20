@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("SmartWatts")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+e3c20eb113e0c0ab2dbe986286c8883ffad9ada6")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+a1a795d3f4c8381fdacacdb1b2da92aa59f8eaa3")]
 [assembly: System.Reflection.AssemblyProductAttribute("SmartWatts")]
 [assembly: System.Reflection.AssemblyTitleAttribute("SmartWatts")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
