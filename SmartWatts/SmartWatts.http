@@ -1,0 +1,6 @@
+@SmartWatts_HostAddress = http://localhost:5082
+
+GET {{SmartWatts_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
