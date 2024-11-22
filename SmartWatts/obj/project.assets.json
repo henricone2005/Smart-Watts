@@ -360,14 +360,14 @@
           "build/net8.0/Microsoft.EntityFrameworkCore.Design.props": {}
         }
       },
-      "Microsoft.EntityFrameworkCore.Relational/8.0.0": {
+      "Microsoft.EntityFrameworkCore.Relational/8.0.3": {
         "type": "package",
         "dependencies": {
-          "Microsoft.EntityFrameworkCore": "8.0.0",
+          "Microsoft.EntityFrameworkCore": "8.0.3",
           "Microsoft.Extensions.Configuration.Abstractions": "8.0.0"
         },
         "compile": {
-          "lib/net8.0/_._": {
+          "lib/net8.0/Microsoft.EntityFrameworkCore.Relational.dll": {
             "related": ".xml"
           }
         },
@@ -436,7 +436,7 @@
           "Microsoft.Extensions.Primitives": "8.0.0"
         },
         "compile": {
-          "lib/net8.0/_._": {
+          "lib/net8.0/Microsoft.Extensions.Configuration.Abstractions.dll": {
             "related": ".xml"
           }
         },
@@ -603,6 +603,19 @@
         },
         "runtime": {
           "lib/netstandard2.0/Mono.TextTemplating.dll": {}
+        }
+      },
+      "Oracle.EntityFrameworkCore/8.23.60": {
+        "type": "package",
+        "dependencies": {
+          "Microsoft.EntityFrameworkCore.Relational": "[8.0.3, 9.0.0)",
+          "Oracle.ManagedDataAccess.Core": "[23.6.0, 24.0.0)"
+        },
+        "compile": {
+          "lib/net8.0/Oracle.EntityFrameworkCore.dll": {}
+        },
+        "runtime": {
+          "lib/net8.0/Oracle.EntityFrameworkCore.dll": {}
         }
       },
       "Oracle.ManagedDataAccess.Core/23.6.1": {
@@ -1654,17 +1667,18 @@
         "microsoft.entityframeworkcore.design.nuspec"
       ]
     },
-    "Microsoft.EntityFrameworkCore.Relational/8.0.0": {
-      "sha512": "fFKkr24cYc7Zw5T6DC4tEyOEPgPbq23BBmym1r9kn4ET9F3HKaetpOeQtV2RryYyUxEeNkJuxgfiZHTisqZc+A==",
+    "Microsoft.EntityFrameworkCore.Relational/8.0.3": {
+      "sha512": "8JnVZHWaNFkrrD/FC0O4jekiHIYey8y6TQ4Co3OzLz0wd5Dm1cwJfTp++1TvaVu0BBd4bVDtiktppa5epuoPrA==",
       "type": "package",
-      "path": "microsoft.entityframeworkcore.relational/8.0.0",
+      "path": "microsoft.entityframeworkcore.relational/8.0.3",
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
         "Icon.png",
+        "PACKAGE.md",
         "lib/net8.0/Microsoft.EntityFrameworkCore.Relational.dll",
         "lib/net8.0/Microsoft.EntityFrameworkCore.Relational.xml",
-        "microsoft.entityframeworkcore.relational.8.0.0.nupkg.sha512",
+        "microsoft.entityframeworkcore.relational.8.0.3.nupkg.sha512",
         "microsoft.entityframeworkcore.relational.nuspec"
       ]
     },
@@ -2290,6 +2304,21 @@
         "lib/netstandard2.0/Mono.TextTemplating.dll",
         "mono.texttemplating.2.2.1.nupkg.sha512",
         "mono.texttemplating.nuspec"
+      ]
+    },
+    "Oracle.EntityFrameworkCore/8.23.60": {
+      "sha512": "+qjaELz10imrQgR84D5ypq32UJO6M9/VC77ko1EuHyhVp53HidPaPX3h3/s2V87lVg4E29p5e2ZP77oGmhYzNA==",
+      "type": "package",
+      "path": "oracle.entityframeworkcore/8.23.60",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "LICENSE.txt",
+        "README.md",
+        "lib/net8.0/Oracle.EntityFrameworkCore.dll",
+        "oracle.entityframeworkcore.8.23.60.nupkg.sha512",
+        "oracle.entityframeworkcore.nuspec",
+        "oracle.png"
       ]
     },
     "Oracle.ManagedDataAccess.Core/23.6.1": {
@@ -3073,6 +3102,7 @@
       "Microsoft.AspNetCore.OpenApi >= 8.0.7",
       "Microsoft.EntityFrameworkCore >= 8.0.0",
       "Microsoft.EntityFrameworkCore.Design >= 8.0.0",
+      "Oracle.EntityFrameworkCore >= 8.23.60",
       "Oracle.ManagedDataAccess.Core >= 23.6.1",
       "Swashbuckle.AspNetCore >= 6.4.0"
     ]
@@ -3083,11 +3113,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "c:\\Users\\henri\\Downloads\\Global\\Smart-Watts\\SmartWatts\\SmartWatts.csproj",
+      "projectUniqueName": "C:\\Users\\henri\\Downloads\\Global\\Smart-Watts\\SmartWatts\\SmartWatts.csproj",
       "projectName": "SmartWatts",
-      "projectPath": "c:\\Users\\henri\\Downloads\\Global\\Smart-Watts\\SmartWatts\\SmartWatts.csproj",
+      "projectPath": "C:\\Users\\henri\\Downloads\\Global\\Smart-Watts\\SmartWatts\\SmartWatts.csproj",
       "packagesPath": "C:\\Users\\henri\\.nuget\\packages\\",
-      "outputPath": "c:\\Users\\henri\\Downloads\\Global\\Smart-Watts\\SmartWatts\\obj\\",
+      "outputPath": "C:\\Users\\henri\\Downloads\\Global\\Smart-Watts\\SmartWatts\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\henri\\AppData\\Roaming\\NuGet\\NuGet.Config"
@@ -3133,6 +3163,10 @@
             "target": "Package",
             "version": "[8.0.0, )"
           },
+          "Oracle.EntityFrameworkCore": {
+            "target": "Package",
+            "version": "[8.23.60, )"
+          },
           "Oracle.ManagedDataAccess.Core": {
             "target": "Package",
             "version": "[23.6.1, )"
@@ -3164,5 +3198,16 @@
         "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.303/PortableRuntimeIdentifierGraph.json"
       }
     }
-  }
+  },
+  "logs": [
+    {
+      "code": "NU1605",
+      "level": "Error",
+      "message": "Aviso como Erro: Downgrade de pacote detectado: Microsoft.EntityFrameworkCore de 8.0.3 para 8.0.0. Referencie o pacote diretamente do projeto para selecionar uma versão diferente. \r\n SmartWatts -> Oracle.EntityFrameworkCore 8.23.60 -> Microsoft.EntityFrameworkCore.Relational 8.0.3 -> Microsoft.EntityFrameworkCore (>= 8.0.3) \r\n SmartWatts -> Microsoft.EntityFrameworkCore (>= 8.0.0)",
+      "libraryId": "Microsoft.EntityFrameworkCore",
+      "targetGraphs": [
+        "net8.0"
+      ]
+    }
+  ]
 }

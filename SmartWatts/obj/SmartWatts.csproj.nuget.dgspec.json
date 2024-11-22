@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "c:\\Users\\henri\\Downloads\\Global\\Smart-Watts\\SmartWatts\\SmartWatts.csproj": {}
+    "C:\\Users\\henri\\Downloads\\Global\\Smart-Watts\\SmartWatts\\SmartWatts.csproj": {}
   },
   "projects": {
-    "c:\\Users\\henri\\Downloads\\Global\\Smart-Watts\\SmartWatts\\SmartWatts.csproj": {
+    "C:\\Users\\henri\\Downloads\\Global\\Smart-Watts\\SmartWatts\\SmartWatts.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "c:\\Users\\henri\\Downloads\\Global\\Smart-Watts\\SmartWatts\\SmartWatts.csproj",
+        "projectUniqueName": "C:\\Users\\henri\\Downloads\\Global\\Smart-Watts\\SmartWatts\\SmartWatts.csproj",
         "projectName": "SmartWatts",
-        "projectPath": "c:\\Users\\henri\\Downloads\\Global\\Smart-Watts\\SmartWatts\\SmartWatts.csproj",
+        "projectPath": "C:\\Users\\henri\\Downloads\\Global\\Smart-Watts\\SmartWatts\\SmartWatts.csproj",
         "packagesPath": "C:\\Users\\henri\\.nuget\\packages\\",
-        "outputPath": "c:\\Users\\henri\\Downloads\\Global\\Smart-Watts\\SmartWatts\\obj\\",
+        "outputPath": "C:\\Users\\henri\\Downloads\\Global\\Smart-Watts\\SmartWatts\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\henri\\AppData\\Roaming\\NuGet\\NuGet.Config"
@@ -56,6 +56,10 @@
               "suppressParent": "All",
               "target": "Package",
               "version": "[8.0.0, )"
+            },
+            "Oracle.EntityFrameworkCore": {
+              "target": "Package",
+              "version": "[8.23.60, )"
             },
             "Oracle.ManagedDataAccess.Core": {
               "target": "Package",

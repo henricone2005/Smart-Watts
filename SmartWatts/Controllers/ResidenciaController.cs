@@ -1,165 +1,58 @@
-using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using SmartWatts.Data;
+using SmartWatts.Data.Repositories;
 using SmartWatts.Models;
 
-namespace SmartWatts.Controllers;
-
-[Route("api/[controller]")]
-[ApiController]
-public class ResidenciaController : ControllerBase
+namespace SmartWatts.Controllers
 {
-    private readonly ApplicationDbContext _context;
-
-    public ResidenciaController(ApplicationDbContext context)
+    [Route("api/[controller]")]
+    [ApiController]
+    public class ResidenciasController : ControllerBase
     {
-        _context = context;
-    }
+        private readonly IResidenciaRepository _residenciaRepository;
 
-    // DTOs
-    public class CreateResidenciaDto
-    {
-        [Required]
-        [Range(1, int.MaxValue, ErrorMessage = "A quantidade de moradores deve ser pelo menos 1.")]
-        public int QuantidadeMoradores { get; set; }
-
-        [Required]
-        [StringLength(200)]
-        public string Endereco { get; set; }
-
-        [Required]
-        public int UsuarioId { get; set; }
-    }
-
-    public class UpdateResidenciaDto
-    {
-        [Required]
-        [Range(1, int.MaxValue, ErrorMessage = "A quantidade de moradores deve ser pelo menos 1.")]
-        public int QuantidadeMoradores { get; set; }
-
-        [Required]
-        [StringLength(200)]
-        public string Endereco { get; set; }
-    }
-
-    public class ResidenciaDto
-    {
-        public int Id { get; set; }
-        public int QuantidadeMoradores { get; set; }
-        public string Endereco { get; set; }
-        public decimal ConsumoTotal { get; set; }
-        public int UsuarioId { get; set; }
-    }
-
-    // Endpoints
-    [HttpPost]
-    public async Task<IActionResult> CreateResidencia([FromBody] CreateResidenciaDto dto)
-    {
-        if (!ModelState.IsValid)
+        public ResidenciasController(IResidenciaRepository residenciaRepository)
         {
-            return BadRequest(ModelState);
+            _residenciaRepository = residenciaRepository;
         }
 
-        var usuario = await _context.Usuarios.FindAsync(dto.UsuarioId);
-        if (usuario == null)
+        [HttpGet]
+        public async Task<IActionResult> GetResidencias()
         {
-            return NotFound($"Usuário com ID {dto.UsuarioId} não encontrado.");
+            var residencias = await _residenciaRepository.GetAllAsync();
+            return Ok(residencias);
         }
 
-        var residencia = new Residencia
+        [HttpGet("{usuarioId}/usuario")]
+        public async Task<IActionResult> GetResidenciasByUsuarioId(int usuarioId)
         {
-            QuantidadeMoradores = dto.QuantidadeMoradores,
-            Endereco = dto.Endereco,
-            UsuarioId = dto.UsuarioId,
-            Usuario = usuario
-        };
+            var residencias = await _residenciaRepository.GetResidenciasByUsuarioIdAsync(usuarioId);
+            return Ok(residencias);
+        }
 
-        _context.Residencias.Add(residencia);
-        await _context.SaveChangesAsync();
+        [HttpPost]
+        public async Task<IActionResult> CreateResidencia([FromBody] Residencia residencia)
+        {
+            await _residenciaRepository.AddAsync(residencia);
+            return CreatedAtAction(nameof(GetResidencias), new { id = residencia.Id }, residencia);
+        }
 
-        return CreatedAtAction(nameof(GetResidenciaById), new { id = residencia.Id }, residencia);
-    }
-
-    [HttpGet]
-    public async Task<ActionResult<IEnumerable<ResidenciaDto>>> GetResidencias()
-    {
-        var residencias = await _context.Residencias
-            .Include(r => r.ContasDeLuz)
-            .Select(r => new ResidenciaDto
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateResidencia(int id, [FromBody] Residencia residencia)
+        {
+            if (id != residencia.Id)
             {
-                Id = r.Id,
-                QuantidadeMoradores = r.QuantidadeMoradores,
-                Endereco = r.Endereco,
-                ConsumoTotal = r.ContasDeLuz.Sum(c => c.ConsumoKwh),
-                UsuarioId = r.UsuarioId
-            })
-            .ToListAsync();
+                return BadRequest();
+            }
 
-        return Ok(residencias);
-    }
-
-    [HttpGet("{id}")]
-    public async Task<ActionResult<ResidenciaDto>> GetResidenciaById(int id)
-    {
-        var residencia = await _context.Residencias
-            .Include(r => r.ContasDeLuz)
-            .Select(r => new ResidenciaDto
-            {
-                Id = r.Id,
-                QuantidadeMoradores = r.QuantidadeMoradores,
-                Endereco = r.Endereco,
-                ConsumoTotal = r.ContasDeLuz.Sum(c => c.ConsumoKwh),
-                UsuarioId = r.UsuarioId
-            })
-            .FirstOrDefaultAsync(r => r.Id == id);
-
-        if (residencia == null)
-        {
-            return NotFound($"Residência com ID {id} não encontrada.");
+            await _residenciaRepository.UpdateAsync(residencia);
+            return NoContent();
         }
 
-        return Ok(residencia);
-    }
-
-    [HttpPut("{id}")]
-    public async Task<IActionResult> UpdateResidencia(int id, [FromBody] UpdateResidenciaDto dto)
-    {
-        var residencia = await _context.Residencias.FindAsync(id);
-        if (residencia == null)
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteResidencia(int id)
         {
-            return NotFound($"Residência com ID {id} não encontrada.");
+            await _residenciaRepository.DeleteAsync(id);
+            return NoContent();
         }
-
-        residencia.QuantidadeMoradores = dto.QuantidadeMoradores;
-        residencia.Endereco = dto.Endereco;
-
-        _context.Entry(residencia).State = EntityState.Modified;
-        await _context.SaveChangesAsync();
-
-        return NoContent();
-    }
-
-    [HttpDelete("{id}")]
-    public async Task<IActionResult> DeleteResidencia(int id)
-    {
-        var residencia = await _context.Residencias
-            .Include(r => r.ContasDeLuz)
-            .FirstOrDefaultAsync(r => r.Id == id);
-
-        if (residencia == null)
-        {
-            return NotFound($"Residência com ID {id} não encontrada.");
-        }
-
-        if (residencia.ContasDeLuz.Any())
-        {
-            return BadRequest("Não é possível excluir uma residência com contas de luz associadas.");
-        }
-
-        _context.Residencias.Remove(residencia);
-        await _context.SaveChangesAsync();
-
-        return NoContent();
     }
 }
