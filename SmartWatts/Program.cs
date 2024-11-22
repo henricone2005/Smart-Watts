@@ -3,7 +3,7 @@ using SmartWatts.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Configurando o DbContext com a string de conexão
+// Configurando o DbContext com a string de conexão para Oracle
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseOracle(builder.Configuration.GetConnectionString("DefaultConnection")));
 

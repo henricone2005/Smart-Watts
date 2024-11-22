@@ -1,163 +1,78 @@
-using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using SmartWatts.Data;
 using SmartWatts.Models;
+using SmartWatts.Repositories;
 
-namespace SmartWatts.Controllers;
-[Route("api/[controller]")]
-[ApiController]
-public class UsuarioController : ControllerBase
+namespace SmartWatts.Controllers
 {
-    private readonly ApplicationDbContext _context;
-
-    public UsuarioController(ApplicationDbContext context)
+    [Route("api/[controller]")]
+    [ApiController]
+    public class UsuarioController : ControllerBase
     {
-        _context = context;
-    }
+        private readonly IUsuarioRepository _usuarioRepository;
 
-    // DTOs
-    public class CreateUsuarioDto
-    {
-        [Required]
-        [StringLength(100)]
-        public string Nome { get; set; }
-
-        [Required]
-        [StringLength(100)]
-        [EmailAddress]
-        public string Email { get; set; }
-
-        public List<int> ResidenciaIds { get; set; } = new List<int>();
-    }
-
-    public class UpdateUsuarioDto
-    {
-        [Required]
-        [StringLength(100)]
-        public string Nome { get; set; }
-
-        [Required]
-        [StringLength(100)]
-        [EmailAddress]
-        public string Email { get; set; }
-    }
-
-    public class UsuarioDto
-    {
-        public int Id { get; set; }
-        public string Nome { get; set; }
-        public string Email { get; set; }
-        public List<int> ResidenciaIds { get; set; } = new List<int>();
-    }
-
-    // Endpoints
-    [HttpPost]
-    public async Task<IActionResult> CreateUsuario([FromBody] CreateUsuarioDto dto)
-    {
-        if (!ModelState.IsValid)
+        public UsuarioController(IUsuarioRepository usuarioRepository)
         {
-            return BadRequest(ModelState);
+            _usuarioRepository = usuarioRepository;
         }
 
-        var usuario = new Usuario
+        // Criar um novo usuário
+        [HttpPost]
+        public async Task<IActionResult> CreateUsuario([FromBody] Usuario usuario)
         {
-            Nome = dto.Nome,
-            Email = dto.Email
-        };
+            if (usuario == null)
+                return BadRequest("Usuário não pode ser nulo.");
 
-        if (dto.ResidenciaIds.Any())
-        {
-            var residencias = await _context.Residencias
-                .Where(r => dto.ResidenciaIds.Contains(r.Id))
-                .ToListAsync();
-
-            if (residencias.Count != dto.ResidenciaIds.Count)
-            {
-                return BadRequest("Um ou mais IDs de residência são inválidos.");
-            }
-
-            foreach (var residencia in residencias)
-            {
-                usuario.Residencias.Add(residencia);
-            }
+            await _usuarioRepository.AddAsync(usuario);
+            return CreatedAtAction(nameof(GetUsuarioById), new { id = usuario.Id }, usuario);
         }
 
-        _context.Usuarios.Add(usuario);
-        await _context.SaveChangesAsync();
-
-        return CreatedAtAction(nameof(GetUsuarioById), new { id = usuario.Id }, usuario);
-    }
-
-    [HttpGet]
-    public async Task<ActionResult<IEnumerable<UsuarioDto>>> GetUsuarios()
-    {
-        var usuarios = await _context.Usuarios
-            .Include(u => u.Residencias)
-            .Select(u => new UsuarioDto
-            {
-                Id = u.Id,
-                Nome = u.Nome,
-                Email = u.Email,
-                ResidenciaIds = u.Residencias.Select(r => r.Id).ToList()
-            })
-            .ToListAsync();
-
-        return Ok(usuarios);
-    }
-
-    [HttpGet("{id}")]
-    public async Task<ActionResult<UsuarioDto>> GetUsuarioById(int id)
-    {
-        var usuario = await _context.Usuarios
-            .Include(u => u.Residencias)
-            .Select(u => new UsuarioDto
-            {
-                Id = u.Id,
-                Nome = u.Nome,
-                Email = u.Email,
-                ResidenciaIds = u.Residencias.Select(r => r.Id).ToList()
-            })
-            .FirstOrDefaultAsync(u => u.Id == id);
-
-        if (usuario == null)
+        // Obter um usuário pelo ID
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetUsuarioById(int id)
         {
-            return NotFound($"Usuário com ID {id} não encontrado.");
+            var usuario = await _usuarioRepository.GetByIdAsync(id);
+
+            if (usuario == null)
+                return NotFound($"Usuário com ID {id} não encontrado.");
+
+            return Ok(usuario);
         }
 
-        return Ok(usuario);
-    }
-
-    [HttpPut("{id}")]
-    public async Task<IActionResult> UpdateUsuario(int id, [FromBody] UpdateUsuarioDto dto)
-    {
-        var usuario = await _context.Usuarios.FindAsync(id);
-        if (usuario == null)
+        // Obter todos os usuários
+        [HttpGet]
+        public async Task<IActionResult> GetAllUsuarios()
         {
-            return NotFound($"Usuário com ID {id} não encontrado.");
+            var usuarios = await _usuarioRepository.GetAllAsync();
+            return Ok(usuarios);
         }
 
-        usuario.Nome = dto.Nome;
-        usuario.Email = dto.Email;
-
-        _context.Entry(usuario).State = EntityState.Modified;
-        await _context.SaveChangesAsync();
-
-        return NoContent();
-    }
-
-    [HttpDelete("{id}")]
-    public async Task<IActionResult> DeleteUsuario(int id)
-    {
-        var usuario = await _context.Usuarios.FindAsync(id);
-        if (usuario == null)
+        // Atualizar um usuário
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateUsuario(int id, [FromBody] Usuario usuario)
         {
-            return NotFound($"Usuário com ID {id} não encontrado.");
+            if (usuario == null || id != usuario.Id)
+                return BadRequest("Dados inválidos.");
+
+            var usuarioExistente = await _usuarioRepository.GetByIdAsync(id);
+
+            if (usuarioExistente == null)
+                return NotFound($"Usuário com ID {id} não encontrado.");
+
+            await _usuarioRepository.UpdateAsync(usuario);
+            return NoContent();
         }
 
-        _context.Usuarios.Remove(usuario);
-        await _context.SaveChangesAsync();
+        // Deletar um usuário
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteUsuario(int id)
+        {
+            var usuario = await _usuarioRepository.GetByIdAsync(id);
 
-        return NoContent();
+            if (usuario == null)
+                return NotFound($"Usuário com ID {id} não encontrado.");
+
+            await _usuarioRepository.DeleteAsync(id);
+            return NoContent();
+        }
     }
 }
