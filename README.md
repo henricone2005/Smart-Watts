@@ -1,6 +1,6 @@
 # Smart-Watts
 
-##Integrantes
+## Integrantes
 
 O Aluno Felipe Batista é da turma 2TDSPY Enquanto os demais são do 2TDSPV.
 
@@ -38,4 +38,55 @@ Um dos principais recursos do SmartWatts é a capacidade de prever o consumo de 
 5. **Projeto**: Rode o projeto.
 6. **SWAGGER**: Voce ira acessar o Swagger em um caminho semelhante a esse https://localhost:7299/Swagger/index.html
 
-7. ### TESTES SWAGGER
+
+ ### TESTES SWAGGER
+
+ - **POST-ML**
+
+   ![image](https://github.com/user-attachments/assets/b92bd530-8af1-4cad-a6bb-f7490b7d012a)
+
+   - **POST**
+   - ![image](https://github.com/user-attachments/assets/a0343d6c-7e84-4b18-bccd-89f697796280)
+   - ![image](https://github.com/user-attachments/assets/bc3e4d8e-8736-4268-8fad-d85695e2638b)
+   - ![image](https://github.com/user-attachments/assets/f50ad452-5c05-4e72-ae14-8f8994614f58)
+  
+
+
+- **GET**
+- ![image](https://github.com/user-attachments/assets/f3af6a1d-db49-4694-8d2b-27e079077083)
+- ![image](https://github.com/user-attachments/assets/2de4f81f-d2de-4606-9988-061d4a264322)
+- ![image](https://github.com/user-attachments/assets/fb90d756-7eae-4afd-a1b3-477767bcc316)
+
+
+
+
+- **GET ID**
+- ![image](https://github.com/user-attachments/assets/3910910f-11a0-4f16-a85c-ad8d97b226fa)
+- ![image](https://github.com/user-attachments/assets/2adc007f-c888-4e31-801a-2104163c1e3c)
+- ![image](https://github.com/user-attachments/assets/1c9e8c02-ad64-4280-90c7-28f7a9919551)
+
+
+
+- **PUT**
+- ![image](https://github.com/user-attachments/assets/493f121c-1c66-4b24-b31b-531cec09b120)
+- ![image](https://github.com/user-attachments/assets/f6534f33-92d0-4758-9776-2ccd6f319d72)
+- ![image](https://github.com/user-attachments/assets/e0eb94f4-9280-4856-a03a-9d308571088c)
+
+
+
+- **DELETE/SELECT**
+- ![image](https://github.com/user-attachments/assets/10a7fcf2-752a-4c6d-90da-1e5dae744cae)
+  ![image](https://github.com/user-attachments/assets/81ea4ba1-66dd-41f8-8d10-6dfd73a9ecf5)
+  ![image](https://github.com/user-attachments/assets/faacc310-8da7-4306-9a28-e26dc9a7d2e5)
+
+
+
+
+
+
+
+
+
+
+
+
