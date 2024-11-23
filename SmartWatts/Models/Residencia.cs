@@ -3,7 +3,8 @@ using SmartWatts.Models;
 public class Residencia
 {
     public int Id { get; set; }
-    public int UsuarioId { get; set; }
-    public Usuario Usuario { get; set; }
-    public ICollection<ContadeLuz> ContasDeLuz { get; set; } = new List<ContadeLuz>(); // Certifique-se que o nome está correto
+    public string Endereco { get; set; }
+
+    // Lista de contas de luz associadas à residência
+    public ICollection<ContadeLuz> ContasDeLuz { get; set; } = new List<ContadeLuz>();
 }

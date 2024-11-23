@@ -1,80 +1,100 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using SmartWatts.Data;
 using SmartWatts.Models;
+
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace SmartWatts.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ResidenciasController : ControllerBase
+    public class ResidenciaController : ControllerBase
     {
-        private readonly ApplicationDbContext _context;
+        private readonly IRepository<Residencia> _residenciaRepository;
+        private readonly IRepository<ContadeLuz> _contaDeLuzRepository;
 
-        public ResidenciasController(ApplicationDbContext context)
+        public ResidenciaController(IRepository<Residencia> residenciaRepository, IRepository<ContadeLuz> contaDeLuzRepository)
         {
-            _context = context;
+            _residenciaRepository = residenciaRepository;
+            _contaDeLuzRepository = contaDeLuzRepository;
         }
 
-        // POST: api/Residencias
+        // POST: api/residencia
         [HttpPost]
-        public async Task<IActionResult> PostResidencia([FromBody] Residencia residencia)
+        public async Task<ActionResult<Residencia>> PostResidencia([FromBody] Residencia residencia)
         {
-            if (residencia.UsuarioId == 0)
-            {
-                return BadRequest("O campo 'UsuarioId' é obrigatório.");
-            }
-
-            // Verificar se o usuário existe
-            var usuario = await _context.Usuarios.FindAsync(residencia.UsuarioId);
-            if (usuario == null)
-            {
-                return NotFound("Usuário não encontrado.");
-            }
-
-            // Adiciona a residência no banco de dados
-            _context.Residencias.Add(residencia);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction(nameof(GetResidenciaById), new { id = residencia.Id }, residencia);
-        }
-
-        // GET: api/Residencias/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Residencia>> GetResidenciaById(int id)
-        {
-            var residencia = await _context.Residencias
-                .FirstOrDefaultAsync(r => r.Id == id);
-
             if (residencia == null)
             {
-                return NotFound();
+                return BadRequest();
             }
 
-            return residencia;
+            // Adiciona a residência
+            await _residenciaRepository.AddAsync(residencia);
+            return CreatedAtAction(nameof(GetResidencia), new { id = residencia.Id }, residencia);
         }
 
-        // GET: api/Residencias
+        // GET: api/residencia
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Residencia>>> GetResidencias()
         {
-            return await _context.Residencias.ToListAsync();
+            var residencias = await _residenciaRepository.GetAllAsync();
+            return Ok(residencias);
         }
 
-        // DELETE: api/Residencias/5
+        // GET: api/residencia/5
+        [HttpGet("{id}")]
+        public async Task<ActionResult<Residencia>> GetResidencia(int id)
+        {
+            var residencia = await _residenciaRepository.GetByIdAsync(id);
+            if (residencia == null)
+            {
+                return NotFound();
+            }
+            return Ok(residencia);
+        }
+
+        // PUT: api/residencia/5
+        [HttpPut("{id}")]
+        public async Task<IActionResult> PutResidencia(int id, [FromBody] Residencia residencia)
+        {
+            if (id != residencia.Id)
+            {
+                return BadRequest();
+            }
+
+            var existingResidencia = await _residenciaRepository.GetByIdAsync(id);
+            if (existingResidencia == null)
+            {
+                return NotFound();
+            }
+
+            await _residenciaRepository.UpdateAsync(residencia);
+            return NoContent();
+        }
+
+        // DELETE: api/residencia/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteResidencia(int id)
         {
-            var residencia = await _context.Residencias.FindAsync(id);
+            var residencia = await _residenciaRepository.GetByIdAsync(id);
             if (residencia == null)
             {
                 return NotFound();
             }
 
-            _context.Residencias.Remove(residencia);
-            await _context.SaveChangesAsync();
+            // Remover as contas de luz associadas antes de remover a residência
+            var contasDeLuz = await _contaDeLuzRepository.GetAllAsync();
+            foreach (var conta in contasDeLuz)
+            {
+                if (conta.ResidenciaId == id)
+                {
+                    await _contaDeLuzRepository.DeleteAsync(conta.Id);
+                }
+            }
 
-            return NoContent();  // Retorna 204 No Content após a exclusão
+            // Remover a residência
+            await _residenciaRepository.DeleteAsync(id);
+            return NoContent();
         }
     }
 }

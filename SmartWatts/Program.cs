@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using SmartWatts.Data;
-using SmartWatts.Data.Repositories;
-using SmartWatts.Repositories;
+
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,10 +14,6 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// Registro dos repositórios
-builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
-builder.Services.AddScoped<IContaDeLuzRepository, ContaDeLuzRepository>();
-builder.Services.AddScoped<IResidenciaRepository, ResidenciaRepository>();
 
 var app = builder.Build();
 
@@ -33,3 +29,5 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
+builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
