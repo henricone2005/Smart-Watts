@@ -1,78 +1,75 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using SmartWatts.Data;
 using SmartWatts.Models;
-using SmartWatts.Repositories;
 
 namespace SmartWatts.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ContadeLuzController : ControllerBase
+    public class ContasdeLuzController : ControllerBase
     {
-        private readonly IContaDeLuzRepository _contaDeLuzRepository;
+        private readonly ApplicationDbContext _context;
 
-        public ContadeLuzController(IContaDeLuzRepository contaDeLuzRepository)
+        public ContasdeLuzController(ApplicationDbContext context)
         {
-            _contaDeLuzRepository = contaDeLuzRepository;
+            _context = context;
         }
 
-        // Criar uma nova conta de luz
+        // POST: api/ContasDeLuz
         [HttpPost]
-        public async Task<IActionResult> CreateContaDeLuz([FromBody] ContadeLuz contaDeLuz)
+        public async Task<IActionResult> PostContaDeLuz([FromBody] ContadeLuz contaDeLuz)
         {
-            if (contaDeLuz == null)
-                return BadRequest("Conta de luz não pode ser nula.");
+            // Verificar se a residência existe
+            var residencia = await _context.Residencias.FindAsync(contaDeLuz.ResidenciaId);
+            if (residencia == null)
+            {
+                return NotFound("Residência não encontrada.");
+            }
 
-            await _contaDeLuzRepository.AddAsync(contaDeLuz);
+            // Adiciona a conta de luz no banco de dados
+            _context.ContasDeLuz.Add(contaDeLuz);
+            await _context.SaveChangesAsync();
+
             return CreatedAtAction(nameof(GetContaDeLuzById), new { id = contaDeLuz.Id }, contaDeLuz);
         }
 
-        // Obter uma conta de luz pelo ID
+        // GET: api/ContasDeLuz/5
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetContaDeLuzById(int id)
+        public async Task<ActionResult<ContadeLuz>> GetContaDeLuzById(int id)
         {
-            var contaDeLuz = await _contaDeLuzRepository.GetByIdAsync(id);
+            var contaDeLuz = await _context.ContasDeLuz
+                .FirstOrDefaultAsync(cl => cl.Id == id);
 
             if (contaDeLuz == null)
-                return NotFound($"Conta de luz com ID {id} não encontrada.");
+            {
+                return NotFound();
+            }
 
-            return Ok(contaDeLuz);
+            return contaDeLuz;
         }
 
-        // Obter todas as contas de luz
+        // GET: api/ContasDeLuz
         [HttpGet]
-        public async Task<IActionResult> GetAllContasDeLuz()
+        public async Task<ActionResult<IEnumerable<ContadeLuz>>> GetContasDeLuz()
         {
-            var contasDeLuz = await _contaDeLuzRepository.GetAllAsync();
-            return Ok(contasDeLuz);
+            return await _context.ContasDeLuz.ToListAsync();
         }
 
-        // Atualizar uma conta de luz
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateContaDeLuz(int id, [FromBody] ContadeLuz contaDeLuz)
-        {
-            if (contaDeLuz == null || id != contaDeLuz.Id)
-                return BadRequest("Dados inválidos.");
-
-            var contaDeLuzExistente = await _contaDeLuzRepository.GetByIdAsync(id);
-
-            if (contaDeLuzExistente == null)
-                return NotFound($"Conta de luz com ID {id} não encontrada.");
-
-            await _contaDeLuzRepository.UpdateAsync(contaDeLuz);
-            return NoContent();
-        }
-
-        // Deletar uma conta de luz
+        // DELETE: api/ContasDeLuz/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteContaDeLuz(int id)
         {
-            var contaDeLuz = await _contaDeLuzRepository.GetByIdAsync(id);
-
+            var contaDeLuz = await _context.ContasDeLuz.FindAsync(id);
             if (contaDeLuz == null)
-                return NotFound($"Conta de luz com ID {id} não encontrada.");
+            {
+                return NotFound();
+            }
 
-            await _contaDeLuzRepository.DeleteAsync(id);
-            return NoContent();
+            _context.ContasDeLuz.Remove(contaDeLuz);
+            await _context.SaveChangesAsync();
+
+            return NoContent();  // Retorna 204 No Content após a exclusão
         }
     }
 }

@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
-using SmartWatts.Data.Repositories;
+using Microsoft.EntityFrameworkCore;
+using SmartWatts.Data;
 using SmartWatts.Models;
 
 namespace SmartWatts.Controllers
@@ -8,51 +9,72 @@ namespace SmartWatts.Controllers
     [ApiController]
     public class ResidenciasController : ControllerBase
     {
-        private readonly IResidenciaRepository _residenciaRepository;
+        private readonly ApplicationDbContext _context;
 
-        public ResidenciasController(IResidenciaRepository residenciaRepository)
+        public ResidenciasController(ApplicationDbContext context)
         {
-            _residenciaRepository = residenciaRepository;
+            _context = context;
         }
 
-        [HttpGet]
-        public async Task<IActionResult> GetResidencias()
-        {
-            var residencias = await _residenciaRepository.GetAllAsync();
-            return Ok(residencias);
-        }
-
-        [HttpGet("{usuarioId}/usuario")]
-        public async Task<IActionResult> GetResidenciasByUsuarioId(int usuarioId)
-        {
-            var residencias = await _residenciaRepository.GetResidenciasByUsuarioIdAsync(usuarioId);
-            return Ok(residencias);
-        }
-
+        // POST: api/Residencias
         [HttpPost]
-        public async Task<IActionResult> CreateResidencia([FromBody] Residencia residencia)
+        public async Task<IActionResult> PostResidencia([FromBody] Residencia residencia)
         {
-            await _residenciaRepository.AddAsync(residencia);
-            return CreatedAtAction(nameof(GetResidencias), new { id = residencia.Id }, residencia);
-        }
-
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateResidencia(int id, [FromBody] Residencia residencia)
-        {
-            if (id != residencia.Id)
+            if (residencia.UsuarioId == 0)
             {
-                return BadRequest();
+                return BadRequest("O campo 'UsuarioId' é obrigatório.");
             }
 
-            await _residenciaRepository.UpdateAsync(residencia);
-            return NoContent();
+            // Verificar se o usuário existe
+            var usuario = await _context.Usuarios.FindAsync(residencia.UsuarioId);
+            if (usuario == null)
+            {
+                return NotFound("Usuário não encontrado.");
+            }
+
+            // Adiciona a residência no banco de dados
+            _context.Residencias.Add(residencia);
+            await _context.SaveChangesAsync();
+
+            return CreatedAtAction(nameof(GetResidenciaById), new { id = residencia.Id }, residencia);
         }
 
+        // GET: api/Residencias/5
+        [HttpGet("{id}")]
+        public async Task<ActionResult<Residencia>> GetResidenciaById(int id)
+        {
+            var residencia = await _context.Residencias
+                .FirstOrDefaultAsync(r => r.Id == id);
+
+            if (residencia == null)
+            {
+                return NotFound();
+            }
+
+            return residencia;
+        }
+
+        // GET: api/Residencias
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<Residencia>>> GetResidencias()
+        {
+            return await _context.Residencias.ToListAsync();
+        }
+
+        // DELETE: api/Residencias/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteResidencia(int id)
         {
-            await _residenciaRepository.DeleteAsync(id);
-            return NoContent();
+            var residencia = await _context.Residencias.FindAsync(id);
+            if (residencia == null)
+            {
+                return NotFound();
+            }
+
+            _context.Residencias.Remove(residencia);
+            await _context.SaveChangesAsync();
+
+            return NoContent();  // Retorna 204 No Content após a exclusão
         }
     }
 }

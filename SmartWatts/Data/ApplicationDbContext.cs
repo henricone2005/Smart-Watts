@@ -16,17 +16,17 @@ public class ApplicationDbContext : DbContext
     {
         // Configuração para Residencia -> Usuario
         modelBuilder.Entity<Residencia>()
-            .HasOne(r => r.Usuario)
-            .WithMany(u => u.Residencias)
-            .HasForeignKey(r => r.UsuarioId)
-            .OnDelete(DeleteBehavior.Cascade); // Cascata: ao excluir o usuário, remove as residências
+            .HasOne<Usuario>()  // Um usuário tem muitas residências
+            .WithMany()  // Relacionamento de um para muitos (sem navegação no lado do usuário)
+            .HasForeignKey(r => r.UsuarioId)  // Chave estrangeira no lado da residência
+            .OnDelete(DeleteBehavior.Cascade); // Excluir residências quando o usuário for excluído
 
         // Configuração para ContadeLuz -> Residencia
         modelBuilder.Entity<ContadeLuz>()
-            .HasOne(cl => cl.Residencia)
-            .WithMany(r => r.ContasDeLuz)
-            .HasForeignKey(cl => cl.ResidenciaId)
-            .OnDelete(DeleteBehavior.Cascade); // Cascata: ao excluir a residência, remove as contas de luz
+            .HasOne<Residencia>()  // Uma conta de luz tem uma residência
+            .WithMany(r => r.ContasDeLuz)  // Uma residência tem muitas contas de luz
+            .HasForeignKey(cl => cl.ResidenciaId)  // Chave estrangeira no lado da conta de luz
+            .OnDelete(DeleteBehavior.Cascade); // Excluir contas de luz quando a residência for excluída
 
         base.OnModelCreating(modelBuilder);
     }
